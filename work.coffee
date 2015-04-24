@@ -19,7 +19,7 @@ ddp.connect (err) ->
     console.log "allJobs Ready!"
     # console.log ddp.collections
 
-  q = Job.processJobs "queue", "testJob", { pollInterval: 100000000 }, (job, cb) ->
+  q = Job.processJobs "queue", "testJob", { pollInterval: 25000000 }, (job, cb) ->
      count = 0
      console.log "Starting job #{job.doc._id}"
      int = setInterval (() ->
