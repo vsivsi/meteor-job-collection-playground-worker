@@ -15,7 +15,11 @@ ddp.connect (err) ->
 
   console.log "Connected!"
 
-  q = Job.processJobs "queue", "testJob", { pollInterval: 1000 }, (job, cb) ->
+  ddp.subscribe 'allJobs', [null], () ->
+    console.log "allJobs Ready!"
+    # console.log ddp.collections
+
+  q = Job.processJobs "queue", "testJob", { pollInterval: 100000000 }, (job, cb) ->
      count = 0
      console.log "Starting job #{job.doc._id}"
      int = setInterval (() ->
@@ -32,6 +36,20 @@ ddp.connect (err) ->
                  clearInterval int
                  job.fail('Progress update failed', () -> cb())
      ), 500
+
+  obs = ddp.observe 'queue.jobs'
+
+  obs.added = (id) ->
+    # console.log "Added: #{id}\n#{JSON.stringify(ddp.collections['queue.jobs'][id])}"
+    if ddp.collections['queue.jobs'][id].status is 'ready'
+      console.log "Triggering queue, added"
+      q.trigger()
+
+  obs.changed = (id, oldFields, clearedFields, newFields) ->
+    # console.log "Changed: #{id}\n#{JSON.stringify(oldFields)}\n#{clearedFields}\n#{JSON.stringify(newFields)}"
+    if newFields.status is 'ready'
+      console.log "Triggering queue, changed"
+      q.trigger()
 
   # DDPlogin ddp, (err, token) ->
   #   throw err if err
