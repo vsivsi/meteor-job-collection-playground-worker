@@ -1,15 +1,15 @@
 DDP = require 'ddp'
 DDPlogin = require 'ddp-login'
 Job = require 'meteor-job'
- 
-# See DDP package docs for options here... 
+
+# See DDP package docs for options here...
 ddp = new DDP
   host: "jcplayground.meteor.com"
   port: 80
   use_ejson: true
- 
+
 Job.setDDP ddp
- 
+
 ddp.connect (err) ->
   throw err if err
 
@@ -17,11 +17,12 @@ ddp.connect (err) ->
 
   q = Job.processJobs "queue", "testJob", { pollInterval: 1000 }, (job, cb) ->
      count = 0
+     console.log "Starting job #{job.doc._id}"
      int = setInterval (() ->
         count++
         if count is 20
            clearInterval int
-           console.log "Done!"
+           console.log "Finished job #{job.doc._id}"
            job.done()
            cb()
         else
@@ -31,7 +32,7 @@ ddp.connect (err) ->
                  clearInterval int
                  job.fail('Progress update failed', () -> cb())
      ), 500
- 
+
   # DDPlogin ddp, (err, token) ->
-  #   throw err if err 
-  
+  #   throw err if err
+
