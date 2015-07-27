@@ -11,7 +11,7 @@ Job = require 'meteor-job'
 # See DDP package docs for options here...
 ddp = new DDP
   host: "jcplayground.meteor.com"
-  port: 80
+  port: 443
   use_ejson: true
   use_ssl: true
 
