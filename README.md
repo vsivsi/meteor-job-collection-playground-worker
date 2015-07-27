@@ -16,19 +16,13 @@ To run as an authenticated user:
 
 First, visit https://jcplayground.meteor.com and setup an account.
 
-Next, install the [ddp-login](https://www.npmjs.com/package/ddp-login) npm package:
-```
-# You may need to run this with sudo
-npm install -g ddp-login
-```
-
 Now authenticate and stash the login credentials in the environment:
 ```
 # Type the email and password for the account you created above when prompted
-export METEOR_TOKEN=$(ddp-login --host jcplayground.meteor.com --port 443 --ssl)
+export METEOR_TOKEN=$(./node_modules/ddp-login/bin/ddp-login --host jcplayground.meteor.com --port 443 --ssl)
 ```
 
-Now when the worker starts it can authenticate and work on your private jobs:
+Now when the worker starts it will authenticate using the token from the environment to work on your private jobs:
 ```
 coffee worker.coffee
 ```
