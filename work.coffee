@@ -17,14 +17,14 @@ ddp.connect (err) ->
 
   DDPlogin ddp, { method: 'token' }, (err, userInfo) ->
     if not err and userInfo
-      console.log JSON.stringify userInfo
+      console.log "Authenticated as userId: #{userInfo.id}"
       proceed userInfo.id
     else proceed()
 
 proceed = (userId = null) ->
   ddp.subscribe 'allJobs', [null], () ->
   console.log "allJobs Ready!"
-  # console.log ddp.collections
+
   suffix = if userId then "_#{userId.substr(0,5)}" else ""
   myType = "testJob#{suffix}"
   q = Job.processJobs "queue", myType, { pollInterval: 25000000 }, (job, cb) ->
