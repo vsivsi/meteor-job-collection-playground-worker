@@ -7,6 +7,7 @@ ddp = new DDP
   host: "jcplayground.meteor.com"
   port: 80
   use_ejson: true
+  use_ssl: true
 
 Job.setDDP ddp
 
