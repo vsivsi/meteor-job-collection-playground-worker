@@ -22,19 +22,19 @@ ddp.connect (err) ->
     else proceed()
 
 proceed = (userId = null) ->
-  ddp.subscribe 'allJobs', [null], () ->
+  ddp.subscribe 'allJobs', [userId], () ->
   console.log "allJobs Ready!"
 
   suffix = if userId then "_#{userId.substr(0,5)}" else ""
   myType = "testJob#{suffix}"
   q = Job.processJobs "queue", myType, { pollInterval: 25000000 }, (job, cb) ->
     count = 0
-    console.log "Starting job #{job.doc._id}"
+    console.log "Starting job #{job.doc._id} run #{job.doc.runId}"
     int = setInterval (() ->
       count++
       if count is 20
         clearInterval int
-        console.log "Finished job #{job.doc._id}"
+        console.log "Finished job #{job.doc._id} run #{job.doc.runId}"
         job.done()
         cb()
       else
