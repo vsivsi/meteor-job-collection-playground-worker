@@ -15,27 +15,35 @@ ddp.connect (err) ->
 
   console.log "Connected!"
 
-  ddp.subscribe 'allJobs', [null], () ->
-    console.log "allJobs Ready!"
-    # console.log ddp.collections
+  DDPlogin ddp, { method: 'token' }, (err, userInfo) ->
+    if not err and userInfo
+      console.log JSON.stringify userInfo
+      proceed userInfo.id
+    else proceed()
 
-  q = Job.processJobs "queue", "testJob", { pollInterval: 25000000 }, (job, cb) ->
-     count = 0
-     console.log "Starting job #{job.doc._id}"
-     int = setInterval (() ->
-        count++
-        if count is 20
-           clearInterval int
-           console.log "Finished job #{job.doc._id}"
-           job.done()
-           cb()
-        else
-           job.progress count, 20, (err, res) ->
-              console.log "Progress: #{100*count/20}%"
-              if err or not res
-                 clearInterval int
-                 job.fail('Progress update failed', () -> cb())
-     ), 500
+proceed = (userId = null) ->
+  ddp.subscribe 'allJobs', [null], () ->
+  console.log "allJobs Ready!"
+  # console.log ddp.collections
+  suffix = if userId then "_#{userId.substr(0,5)}" else ""
+  myType = "testJob#{suffix}"
+  q = Job.processJobs "queue", myType, { pollInterval: 25000000 }, (job, cb) ->
+    count = 0
+    console.log "Starting job #{job.doc._id}"
+    int = setInterval (() ->
+      count++
+      if count is 20
+        clearInterval int
+        console.log "Finished job #{job.doc._id}"
+        job.done()
+        cb()
+      else
+        job.progress count, 20, (err, res) ->
+          console.log "Progress: #{100*count/20}%"
+          if err or not res
+            clearInterval int
+            job.fail('Progress update failed', () -> cb())
+    ), 500
 
   obs = ddp.observe 'queue.jobs'
 
@@ -50,7 +58,3 @@ ddp.connect (err) ->
     if newFields.status is 'ready'
       console.log "Triggering queue, changed"
       q.trigger()
-
-  # DDPlogin ddp, (err, token) ->
-  #   throw err if err
-
