@@ -28,9 +28,15 @@ ddp.connect (err) ->
       proceed userInfo.id
     else proceed()
 
+q = null
+
 proceed = (userId = null) ->
   ddp.subscribe 'allJobs', [userId], () ->
-  console.log "allJobs Ready!"
+    console.log "allJobs Ready!"
+
+  ddp.subscribe 'clientStats', [userId], () ->
+    console.log "clientStats Ready!"
+
 
   suffix = if userId then "_#{userId.substr(0,5)}" else ""
   myType = "testJob#{suffix}"
@@ -65,3 +71,47 @@ proceed = (userId = null) ->
     if newFields.status is 'ready'
       console.log "Triggering queue, changed"
       q.trigger()
+
+  stats = ddp.observe 'jobStats'
+
+  stats.added = (id) ->
+    # console.log "Added: #{id}\n#{JSON.stringify(ddp.collections['queue.jobs'][id])}"
+    console.log "Status added: #{JSON.stringify(ddp.collections['jobStats'][id])}"
+
+  stats.changed = (id, oldFields, clearedFields, newFields) ->
+    # console.log "Changed: #{id}\n#{JSON.stringify(oldFields)}\n#{clearedFields}\n#{JSON.stringify(newFields)}"
+    console.log "Status changed: #{JSON.stringify(ddp.collections['jobStats'][id])}"
+
+  shutdown = (level = 'soft') ->
+    console.log "Attempting to shutdown", level
+    q.shutdown { level: level }, () ->
+      console.log "Shutdown!"
+      ddp.close()
+
+  ddp.on 'socket-close', (code, message) ->
+    console.warn "Socket closed!", code, message
+
+  ddp.on 'socket-error', (err) ->
+    console.error "Socket error!", err
+    shutdown 'hard'
+
+  process.on 'SIGINT', do () ->
+   memory = 0
+   return (signum) ->
+     console.log "Attempting to shutdown"
+     switch memory++
+       when 0
+         shutdown 'soft'
+       when 1
+         shutdown 'normal'
+       when 2
+         shutdown 'hard'
+       else
+         ddp.close()
+         process.exit 1
+
+  process.on 'SIGQUIT', (signum) ->
+    shutdown 'normal'
+
+  process.on 'SIGTERM', (signum) ->
+    shutdown 'hard'
