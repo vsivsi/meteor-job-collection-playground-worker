@@ -28,8 +28,6 @@ ddp.connect (err) ->
       proceed userInfo.id
     else proceed()
 
-q = null
-
 proceed = (userId = null) ->
   ddp.subscribe 'allJobs', [userId], () ->
     console.log "allJobs Ready!"
