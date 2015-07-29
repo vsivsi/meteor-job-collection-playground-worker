@@ -86,12 +86,20 @@ proceed = (userId = null) ->
       console.log "Shutdown!"
       ddp.close()
 
-  ddp.on 'socket-close', (code, message) ->
-    console.warn "Socket closed!", code, message
-
-  ddp.on 'socket-error', (err) ->
+  onError = (err) ->
     console.error "Socket error!", err
     shutdown 'hard'
+
+  ddp.on 'socket-error', onError
+
+  onClose = (code, message) ->
+    console.warn "Socket closed!", code, message
+    obs.stop()
+    stats.stop()
+    ddp.removeListener 'socket-close', onClose
+    ddp.removeListener 'socket-error', onError
+
+  ddp.on 'socket-close', onClose
 
   process.on 'SIGINT', do () ->
    memory = 0
