@@ -38,7 +38,7 @@ proceed = (userId = null) ->
 
   suffix = if userId then "_#{userId.substr(0,5)}" else ""
   myType = "testJob#{suffix}"
-  q = Job.processJobs "queue", myType, { pollInterval: 25000000 }, (job, cb) ->
+  q = Job.processJobs "queue", myType, { pollInterval: false, workTimeout: 60*1000 }, (job, cb) ->
     count = 0
     console.log "Starting job #{job.doc._id} run #{job.doc.runId}"
     int = setInterval (() ->
