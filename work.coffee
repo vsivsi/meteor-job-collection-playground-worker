@@ -1,5 +1,5 @@
 ############################################################################
-#     Copyright (C) 2015 by Vaughn Iverson
+#     Copyright (C) 2015-2016 by Vaughn Iverson
 #     This is free software released under the MIT/X11 license.
 #     See included LICENSE file for details.
 ############################################################################
