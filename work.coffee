@@ -35,9 +35,19 @@ proceed = (userId = null) ->
   ddp.subscribe 'clientStats', [userId], () ->
     console.log "clientStats Ready!"
 
-
   suffix = if userId then "_#{userId.substr(0,5)}" else ""
   myType = "testJob#{suffix}"
+
+  # Ensure that the callback is not called multiple times
+  once = (func) ->
+    called = false
+    return () ->
+      unless called
+        called = true
+        func()
+      else
+        console.warn("Callback invoked multiple times!")
+
   q = Job.processJobs "queue", myType, { pollInterval: false, workTimeout: 60*1000 }, (job, cb) ->
     count = 0
     console.log "Starting job #{job.doc._id} run #{job.doc.runId}"
@@ -47,13 +57,14 @@ proceed = (userId = null) ->
         clearInterval int
         console.log "Finished job #{job.doc._id} run #{job.doc.runId}"
         job.done()
-        cb()
+        once(cb)()
       else
+        console.log "Progress: #{100*count/20}%"
         job.progress count, 20, (err, res) ->
-          console.log "Progress: #{100*count/20}%"
+          # A progress update error need not be fatal, but here we consider it to be...
           if err or not res
             clearInterval int
-            job.fail('Progress update failed', () -> cb())
+            job.fail('Progress update failed', once(cb))
     ), 500
 
   obs = ddp.observe 'queue.jobs'
