@@ -1,6 +1,6 @@
 ### jcPlaygroundWorker
 
-This is a sample app demonstrating a standalone plain node.js worker that can connect to the Meteor hosted [job collection playground server](https://jcplayground.meteorapp.com) and work on jobs.
+This is a sample app demonstrating a standalone plain node.js worker that can connect to the Meteor hosted [job collection playground server](http://jcplayground.meteorapp.com) and work on jobs.
 
 To install:
 
@@ -14,7 +14,7 @@ To run (unauthenticated) simply: `coffee worker.coffee`
 
 To run as an authenticated user:
 
-First, visit [https://jcplayground.meteorapp.com](https://jcplayground.meteorapp.com) and setup an account.
+First, visit [http://jcplayground.meteorapp.com](http://jcplayground.meteorapp.com) and setup an account.
 
 Now authenticate and stash the login credentials in the environment:
 ```
