@@ -19,7 +19,7 @@ First, visit [http://jcplayground.meteorapp.com](http://jcplayground.meteorapp.c
 Now authenticate and stash the login credentials in the environment:
 ```
 # Type the email and password for the account you created above when prompted
-export METEOR_TOKEN=$(./node_modules/ddp-login/bin/ddp-login --host jcplayground.meteor.com --port 80)
+export METEOR_TOKEN=$(./node_modules/ddp-login/bin/ddp-login --host jcplayground.meteorapp.com --port 80)
 ```
 
 Now when the worker starts it will authenticate using the token from the environment to work on your private jobs:
