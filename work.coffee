@@ -14,6 +14,8 @@ ddp = new DDP
   port: 80
   use_ejson: true
   use_ssl: false
+  autoReconnect : true
+  autoReconnectTimer : 30000
 
 Job.setDDP ddp
 
@@ -39,33 +41,36 @@ proceed = (userId = null) ->
   myType = "testJob#{suffix}"
 
   # Ensure that the callback is not called multiple times
-  once = (func) ->
+  once = (func, label) ->
     called = false
     return () ->
       unless called
         called = true
+        console.log("Callback called! #{label}")
         func()
       else
-        console.warn("Callback invoked multiple times!")
+        console.warn("Callback invoked multiple times!", label)
+
+  nextStep = (func) ->
+    setTimeout(func, 500)
 
   q = Job.processJobs "queue", myType, { pollInterval: false, workTimeout: 60*1000 }, (job, cb) ->
     count = 0
     console.log "Starting job #{job.doc._id} run #{job.doc.runId}"
-    int = setInterval (() ->
+    workStep = () ->
       count++
       if count is 20
-        clearInterval int
         console.log "Finished job #{job.doc._id} run #{job.doc.runId}"
-        job.done()
-        once(cb)()
+        job.done(once(cb, "Done"))
       else
         console.log "Progress: #{100*count/20}%"
         job.progress count, 20, (err, res) ->
           # A progress update error need not be fatal, but here we consider it to be...
           if err or not res
-            clearInterval int
-            job.fail('Progress update failed', once(cb))
-    ), 500
+            job.fail('Progress update failed', once(cb, "Fail"))
+          else
+            nextStep workStep
+    workStep()
 
   obs = ddp.observe 'queue.jobs'
 
