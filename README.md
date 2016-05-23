@@ -14,12 +14,12 @@ To run (unauthenticated) simply: `coffee worker.coffee`
 
 To run as an authenticated user:
 
-First, visit [http://jcplayground.meteorapp.com](http://jcplayground.meteorapp.com) and setup an account.
+First, visit [https://jcplayground.meteorapp.com](https://jcplayground.meteorapp.com) and setup an account.
 
 Now authenticate and stash the login credentials in the environment:
 ```
 # Type the email and password for the account you created above when prompted
-export METEOR_TOKEN=$(./node_modules/ddp-login/bin/ddp-login --host jcplayground.meteorapp.com --port 80)
+export METEOR_TOKEN=$(./node_modules/ddp-login/bin/ddp-login --host jcplayground.meteorapp.com --port 443 --ssl)
 ```
 
 Now when the worker starts it will authenticate using the token from the environment to work on your private jobs:
